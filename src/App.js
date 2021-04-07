@@ -8,7 +8,9 @@ import Diagram from "./Diagram";
 export default function App() {
   console.log("APP");
   return (
-    <Router>
+<Router
+  baseline="/"
+  basename="/">
       <Switch>
         <Route path="/wordcloud">
           <WordCloud />
