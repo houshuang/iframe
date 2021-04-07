@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import WordCloud from "./Wordcloud";
 import Query from "./Query";
 import Chat from "./Chat";
