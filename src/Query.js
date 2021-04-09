@@ -32,7 +32,7 @@ const Query = () => {
           page[1].forEach((item) => acc.push(item));
           return acc;
         }, []);
-        setState(links.filter((x) => x.string && !exclusions.includes(x.uid)));
+        setState(links.filter((x) => x.string && !(exclusions||[]).includes(x.uid)));
       }
     });
   }, []);

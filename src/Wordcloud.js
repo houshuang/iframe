@@ -196,8 +196,9 @@ const App = () => {
       );
     });
   }, []);
-  const fontSizeMapper = (word) => Math.log2(word.value) * 5;
+  const fontSizeMapper = (word) => Math.log2(word.value) * 15;
   const rotate = (word) => word.value % 360;
+console.log(state)
   return state ? (
     <WordCloud data={state} fontSizeMapper={fontSizeMapper} rotate={rotate} />
       ) : <>Waiting for data</>;
