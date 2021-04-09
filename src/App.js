@@ -3,7 +3,7 @@ import {BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
 import WordCloud from "./Wordcloud";
 import Query from "./Query";
 import Chat from "./Chat";
-import Diagram from "./Diagram";
+import Spreadsheet from "./Spreadsheet";
 
 export default function App() {
   return (
@@ -18,8 +18,8 @@ export default function App() {
         <Route path="/chat">
           <Chat />
         </Route>
-        <Route path="/diagram">
-          <Diagram />
+        <Route path="/spreadsheet">
+          <Spreadsheet />
         </Route>
       </Switch>
     </Router>
