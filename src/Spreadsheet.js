@@ -58,7 +58,6 @@ const dataStructure = (query = '') => {
   let cols = 4
   if(val && val.length === 2){
     const [newrows,newcols] = val[1].split('x')
-    console.log(newrows,newcols)
     rows=parseInt(newrows,10)
     cols =parseInt(newcols,10)
   }
@@ -150,13 +149,15 @@ class Spreadsheet extends React.Component {
       this.computeExpr(changeCell.key, expr, scope)
     );
     const {newData} = this.state
-    const existing = newData.find(x => x.string.split(':')[0] === changeCell.key)
-    console.log(existing)
+    const existing = newData && newData.find(x => x.string.split(':')[0] === changeCell.key)
     if(existing) {
     window.parent.postMessage({ type: "updateBlock", string: changeCell.key+': '+ updatedCell.value , uid: existing.uid }, "*");
     } else {
-    window.parent.postMessage({ type: "addBlock", string: changeCell.key+': '+ updatedCell.value }, "*");
+    window.parent.postMessage({ type: "createBlock", string: changeCell.key+': '+ updatedCell.value }, "*");
+  
+    window.parent.postMessage({ type: "deleteBlock", string: changeCell.key+': '+ updatedCell.value, "uid": "fyh2oOOeC" }, "*");
     }
+    
     data[row][col] = updatedCell
     console.log(data)
     this.setState({data})
@@ -176,13 +177,13 @@ class Spreadsheet extends React.Component {
         return;
       }
       console.log('DATA', e.data)
-      const newData = e.data["roam-data"].below.children
+      const newData = e.data["roam-data"]["blocks-below"].children
     let data = cloneDeep(this.state.defaultData)  
     if(newData) {
       newData.forEach(cell => {
         const [idx, val] = cell.string.split(':')
         if(!val) { return }
-        console.log(idx,val)
+    
         const [letter, numberStr] = idx.split('')
         const letteridx = alphabet.findIndex(x=>x===letter)
         const number = parseInt(numberStr,10)

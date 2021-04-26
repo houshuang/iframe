@@ -174,33 +174,45 @@ const countWords = (words) => {
   const ary = Object.keys(cntDict).map((x) => ({ text: x, value: cntDict[x] }));
   return orderBy(ary, ["value"], ["desc"]).slice(0, 50);
 };
-console.log('wordcloud')
+
+
 const App = () => {
   const [state, setState] = React.useState([]);
+  const [rawState, setRawState] = React.useState([]);
   React.useEffect(() => {
     window.parent.postMessage({ type: "ready" }, "*");
     window.addEventListener("message", (e) => {
       if (!typeof e.data === "object" || !e.data["roam-data"]) {
         return;
       }
-      console.log("DATA", e.data);
       const data = e.data["roam-data"];
+      setRawState(data)
       setState(
         countWords(
-          data.query.length > 0
+          (data.query||[]).length > 0
             ? getQuery(data.query)
-            : data.blockref
-            ? getStrings(data.blockref, true)
-            : getStrings(data.below)
+            : data["block-ref"]
+            ? getStrings(data["block-ref"], true)
+            : getStrings(data["blocks-below"],true)
         )
       );
     });
   }, []);
+
+const blocksRecursive = (x) => ([x, ...(x.children ? x.children.flatMap(y=>blocksRecursive(y)):[])])
+
+const onWordClick =(word) =>{
+   const w = word.text
+   const blocks = (rawState['block-ref'] || rawState['blocks-below'])
+  const targetBlock = blocksRecursive(blocks).find(x => x.string.includes(w))
+  console.log(targetBlock)
+   window.parent.postMessage({ type: "openBlockInSidebar", uid: targetBlock.uid }, "*");
+}
+
   const fontSizeMapper = (word) => Math.log2(word.value) * 15;
   const rotate = (word) => word.value % 360;
-console.log(state)
   return state ? (
-    <WordCloud data={state} fontSizeMapper={fontSizeMapper} rotate={rotate} />
+    <WordCloud data={state} fontSizeMapper={fontSizeMapper} rotate={rotate} onWordClick={onWordClick}/>
       ) : <>Waiting for data</>;
 };
 
