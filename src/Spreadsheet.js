@@ -153,7 +153,7 @@ class Spreadsheet extends React.Component {
     if(existing) {
     window.parent.postMessage({ type: "roamIframeAPI.data.block.update", block: {string: changeCell.key+': '+ updatedCell.value , uid: existing.uid }}, "*");
     } else {
-    window.parent.postMessage({ type: "roamIframeAPI.data.block.block", block: {string: changeCell.key+': '+ updatedCell.value }}, "*");
+    window.parent.postMessage({ type: "roamIframeAPI.data.block.create", block: {string: changeCell.key+': '+ updatedCell.value }}, "*");
     }
     
     data[row][col] = updatedCell
