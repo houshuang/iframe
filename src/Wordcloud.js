@@ -178,41 +178,39 @@ const countWords = (words) => {
 
 const App = () => {
   const [state, setState] = React.useState([]);
-  const [rawState, setRawState] = React.useState([]);
+  const [rawState, setRawState] = React.useState();
   React.useEffect(() => {
-    window.parent.postMessage({ type: "ready" }, "*");
+    window.parent.postMessage({ type: "roamIframeAPI.ready" }, "*");
     window.addEventListener("message", (e) => {
       if (!typeof e.data === "object" || !e.data["roam-data"]) {
-        return;
-      }
-      const data = e.data["roam-data"];
-      setRawState(data)
-      setState(
-        countWords(
-          (data.query||[]).length > 0
-            ? getQuery(data.query)
-            : data["block-ref"]
-            ? getStrings(data["block-ref"], true)
-            : getStrings(data["blocks-below"],true)
-        )
-      );
+        return;}
+      setRawState(e.data["roam-data"])
     });
   }, []);
+  console.log(rawState)
+  return (<div style={{display: 'flex', flexDirection: 'row'}}>
+  {!rawState? null : rawState['block-refs'].map(b => 
+  <WordcloudComponent state={countWords(getStrings(b,true))} rawState={b}/>)}
+  </div>)
+}
 
-const blocksRecursive = (x) => ([x, ...(x.children ? x.children.flatMap(y=>blocksRecursive(y)):[])])
+const WordcloudComponent = ({state,rawState}) =>{
+  
+  const blocksRecursive = (x) => ([x, ...(x.children ? x.children.flatMap(y=>blocksRecursive(y)):[])]);
 
 const onWordClick =(word) =>{
    const w = word.text
-   const blocks = (rawState['block-ref'] || rawState['blocks-below'])
+   const blocks = (rawState)
   const targetBlock = blocksRecursive(blocks).find(x => x.string.includes(w))
-  console.log(targetBlock)
-   window.parent.postMessage({ type: "openBlockInSidebar", uid: targetBlock.uid }, "*");
+   window.parent.postMessage({ type: "roamIframeAPI.ui.right-sidebar.add-window", window: {"block-uid":  targetBlock.uid , "type": "block"}}, "*");
 }
 
   const fontSizeMapper = (word) => Math.log2(word.value) * 15;
   const rotate = (word) => word.value % 360;
+
   return state ? (
-    <WordCloud data={state} fontSizeMapper={fontSizeMapper} rotate={rotate} onWordClick={onWordClick}/>
+    <div style={{borderStyle:"solid"}}>
+    <WordCloud width={200} height={200} data={state} fontSizeMapper={fontSizeMapper} rotate={rotate} onWordClick={onWordClick}/></div>
       ) : <>Waiting for data</>;
 };
 

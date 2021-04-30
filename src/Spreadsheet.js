@@ -151,11 +151,9 @@ class Spreadsheet extends React.Component {
     const {newData} = this.state
     const existing = newData && newData.find(x => x.string.split(':')[0] === changeCell.key)
     if(existing) {
-    window.parent.postMessage({ type: "updateBlock", string: changeCell.key+': '+ updatedCell.value , uid: existing.uid }, "*");
+    window.parent.postMessage({ type: "roamIframeAPI.data.block.update", block: {string: changeCell.key+': '+ updatedCell.value , uid: existing.uid }}, "*");
     } else {
-    window.parent.postMessage({ type: "createBlock", string: changeCell.key+': '+ updatedCell.value }, "*");
-  
-    window.parent.postMessage({ type: "deleteBlock", string: changeCell.key+': '+ updatedCell.value, "uid": "fyh2oOOeC" }, "*");
+    window.parent.postMessage({ type: "roamIframeAPI.data.block.block", block: {string: changeCell.key+': '+ updatedCell.value }}, "*");
     }
     
     data[row][col] = updatedCell
@@ -171,7 +169,7 @@ class Spreadsheet extends React.Component {
 
 
   componentDidMount = () => {
-    window.parent.postMessage({ type: "ready" }, "*");
+    window.parent.postMessage({ type: "roamIframeAPI.ready" }, "*");
     window.addEventListener("message", (e) => {
       if (!typeof e.data === "object" || !e.data["roam-data"]) {
         return;
