@@ -16,13 +16,13 @@ const clicked = (e, uid) => {
 const Query = () => {
   const [state, setState] = React.useState([]);
   React.useEffect(() => {
-    window.parent.postMessage({ type: "ready" }, "*");
+    window.parent.postMessage({ type: "roamIframeAPI.ready" }, "*");
     window.addEventListener("message", (e) => {
-      console.log(e);
       if (!typeof e.data === "object" || !e.data["roam-data"]) {
         return;
       }
       const data = e.data["roam-data"];
+      console.log(data)
       if (data && data.query) {
         const exclusions =
           data.below &&

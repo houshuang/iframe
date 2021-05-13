@@ -136,6 +136,9 @@ const stopwords = [
 ];
 
 const getStrings = (data, inclHeader) => {
+  if(Array.isArray(data)) {
+    return data.map(x => getStrings(x)).join(" ")
+  }
   return (
     (inclHeader ? data.string : " ") +
     " " +
@@ -185,12 +188,15 @@ const App = () => {
       if (!typeof e.data === "object" || !e.data["roam-data"]) {
         return;}
       setRawState(e.data["roam-data"])
+    
     });
   }, []);
   console.log(rawState)
-  return (<div style={{display: 'flex', flexDirection: 'row'}}>
-  {!rawState? null : rawState['block-refs'].map(b => 
-  <WordcloudComponent state={countWords(getStrings(b,true))} rawState={b}/>)}
+  if(!rawState) return null;
+  return (<div >
+  {rawState['block-refs'] && rawState['block-refs'].map(b => 
+  <WordcloudComponent state={countWords(getStrings(b))} rawState={b}/>)}{Object.values(rawState['queries']).map(b => 
+  <WordcloudComponent state={countWords(getStrings(b))} rawState={b}/>)}
   </div>)
 }
 
@@ -201,7 +207,7 @@ const WordcloudComponent = ({state,rawState}) =>{
 const onWordClick =(word) =>{
    const w = word.text
    const blocks = (rawState)
-  const targetBlock = blocksRecursive(blocks).find(x => x.string.includes(w))
+  const targetBlock = blocksRecursive(blocks).find(x => (x.string || "").includes(w))
    window.parent.postMessage({ type: "roamIframeAPI.ui.right-sidebar.add-window", window: {"block-uid":  targetBlock.uid , "type": "block"}}, "*");
 }
 
@@ -209,8 +215,8 @@ const onWordClick =(word) =>{
   const rotate = (word) => word.value % 360;
 
   return state ? (
-    <div style={{borderStyle:"solid"}}>
-    <WordCloud width={200} height={200} data={state} fontSizeMapper={fontSizeMapper} rotate={rotate} onWordClick={onWordClick}/></div>
+    
+    <WordCloud  data={state} fontSizeMapper={fontSizeMapper} rotate={rotate} onWordClick={onWordClick}/>
       ) : <>Waiting for data</>;
 };
 

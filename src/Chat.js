@@ -1,55 +1,42 @@
 import * as React from "react";
 import { ChatInput, ChatFeed, Message } from "react-chat-ui";
 
-const remove = (uid) => {
-  window.parent.postMessage({ type: "addBlock", string: uid }, "*");
-};
-
 const clicked = () => {};
 
-const onMessageSubmit = (name, e) =>
-  window.parent.postMessage({ type: "addBlock", string: `${name}: ${e}` }, "*");
+const onMessageSubmit = (user, e) =>
+  window.parent.postMessage({ type: "roamIframeAPI.data.block.create", block: {string: `${user['display-name']}: ${e}` }}, "*");
 
 const Query = () => {
   const [state, setState] = React.useState([]);
   const [user, setUser] = React.useState(null);
   const [input, setInput] = React.useState("");
   React.useEffect(() => {
-    window.parent.postMessage({ type: "ready" }, "*");
+    window.parent.postMessage({ type: "roamIframeAPI.ready" }, "*");
     window.addEventListener("message", (e) => {
       console.log(e);
       if (!typeof e.data === "object" || !e.data["roam-data"]) {
         return;
       }
       const data = e.data["roam-data"];
-      if (data && data.query) {
+      console.log(data)
+      if (data) {
         setState(
-          data.below &&
-            data.below.children &&
-            data.below.children.map((x) => {
+          data['blocks-below'] &&
+            data['blocks-below'].children &&
+            data['blocks-below'].children.map((x) => {
               const [name, msg] = x.string.split(":");
-              console.log(name.trim(), data.name);
               return new Message({
-                id: name.trim() === data.name + "" ? 0 : 1,
+                id: name,
                 message: msg,
-                senderName: name.trim() === data.name + "" ? undefined : name,
+                senderName: name,
               });
             })
         );
-        setUser(data.name);
+        setUser(data.user);
       }
     });
   }, []);
-  const messages = [
-    new Message({
-      id: 1,
-      message: "I'm the recipient! (The person you're talking to)",
-    }),
-    new Message({
-      id: 0,
-      message: "I'm you",
-    }),
-  ];
+  
   return (
     <div
       style={{
